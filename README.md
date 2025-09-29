@@ -1,230 +1,132 @@
+
 # AvaliaçãoCastelApp
 
-> App Android em React Native para registro de avaliações de frutas, com suporte offline, autenticação Firebase, exportação XLSX e envio via WhatsApp.
+> App Android — registro e gestão de avaliações de frutas (offline-first)  
+> Feito em React Native + TypeScript. Ideal para uso em campo (pomares / câmaras) com sincronização eventual.
 
 ---
 
-## 📋 Sumário
+## 🚀 Visão Geral
 
-1. [Visão Geral](#visão-geral)  
-2. [Funcionalidades](#funcionalidades)  
-3. [Fluxo de Telas](#fluxo-de-telas)  
-4. [Tecnologias e Dependências](#tecnologias-e-dependências)  
-5. [Pré-requisitos](#pré-requisitos)  
-6. [Configuração do Ambiente](#configuração-do-ambiente)  
-7. [Execução em Desenvolvimento](#execução-em-desenvolvimento)  
-8. [Build de Release (APK/AAB)](#build-de-release-apkaab)  
-9. [Banco de Dados Local (SQLite)](#banco-de-dados-local-sqlite)  
-10. [Firebase](#firebase)  
-11. [Schema](#schema)  
-12. [Componentização & Arquitetura](#componentização--arquitetura)  
-13. [Contextos & Providers](#contextos--providers)  
-14. [Entrega ao Cliente](#entrega-ao-cliente)  
-15. [Contato & Suporte](#contato--suporte)  
+**AvaliaçãoCastelApp** é uma aplicação móvel desenvolvida para equipes de campo registrarem avaliações de qualidade de frutas de forma rápida, confiável e offline. O app foi pensado para operações agrícolas e de logística que precisam coletar muitos dados no ponto de origem e, quando possível, sincronizar posteriormente.
+
+Principais preocupações do projeto: **usabilidade em telas pequenas**, **resiliência offline**, **fluxos rápidos de cadastro (wizard)** e **exportação / compartilhamento** para integração com relatórios e comunicação com clientes (e-mail / WhatsApp).
 
 ---
 
-## Visão Geral
+## ✨ Funcionalidades Principais
 
-O **AvaliaçãoCastelApp** permite que equipes de campo registrem e gerenciem avaliações de frutas mesmo sem conexão.  
-Oferece:
-
-- **Autenticação** Firebase (e-mail/senha) com cache offline  
-- **Armazenamento local** SQLite para toda a estrutura de dados  
-- **Wizard** de cadastro em múltiplas etapas  
-- **Exportação** para XLSX com cabeçalhos dinâmicos  
-- **Compartilhamento** formatado via WhatsApp ou e-mail  
-- **Gestão** de dados mestres (produtores, variedades, locais)  
-
----
-
-## Funcionalidades
-
-1. **Login**  
-   - Tela de login com logo, validação online/offline  
-
-2. **Lista de Avaliações**  
-   - FlatList com filtros por data, ticket, produtor  
-   - Indicadores “Enviado WhatsApp” / “Enviado Email”  
-   - Menu de ações: Nova avaliação, Exportar, Filtrar, Sair  
-
-3. **Cadastro Wizard** (4 passos)  
-   - **Identificação**: data (DatePicker), ticket → busca produtor, autocomplete  
-   - **Classificação**: %CAT1/2/3/IND (soma=100%), peso, frutas miúdas, RP, BRIX (decimal)  
-   - **Defeitos**: tabela dinâmica incluindo Falta de Cor, Granizo, Russeting, Sarna, Glomerela, Bichada, etc.  
-   - **Finalização**: Enchimento dos Bins (Bom/Vazios), Polibolha (Ok/Está sem), Observação  
-
-4. **Preview / Confirmação**  
-   - Visualizar todos os campos  
-   - Ações: enviar WhatsApp / enviar e-mail com confirmação (snackbar)  
-
-5. **Gestão de Master Data**  
-   - Tela dedicada para visualizar, editar e excluir produtores, variedades e locais  
-
-6. **Exportação XLSX**  
-   - Geração de planilha via SheetJS (`xlsx`)  
-   - Cabeçalhos acentuados via `labelsEnum`  
-   - Anexo em e-mail com confirmação de envio  
+- **Autenticação** via Firebase (e-mail/senha) com fluxo offline-first.
+- **Cadastro de Avaliações** em um wizard multi-etapas (Identificação → Classificação → Defeitos → Observações).
+- **Validações embarcadas** (por exemplo: `%CAT1 + %CAT2 + %CAT3 + %IND` = 100%).
+- **Autocomplete** para produtores, variedades e locais.
+- **Gerenciamento de master data** (produtores, variedades e locais) via telas dedicadas.
+- **Preview / Confirmação** de avaliação antes do salvamento.
+- **Envio por WhatsApp** (formato rico) com confirmação do envio.
+- **Exportação XLSX** (SheetJS) e envio por e-mail com anexo.
+- **Flags de envio**: `enviadoWhatsapp` e `enviadoEmail`.
+- **UI/UX**: tema da empresa, fluxo com indicadores de progresso e acessibilidade melhorada.
+- **Persistência local** para uso offline; sincronização eventual com Firebase como opção futura.
 
 ---
 
-## Fluxo de Telas
+## 🧭 Fluxo do Usuário (resumido)
 
-1. **Login**  
-2. **Lista de Avaliações**  
-3. **FilterDialog** (popup)  
-4. **Cadastro Wizard**  
-5. **Preview / ConfirmAvaliacao**  
-6. **MasterDataScreen** (produtores, variedades, locais)  
-
----
-
-## Tecnologias e Dependências
-
-- **React Native** (CLI + TypeScript)  
-- **React Navigation** (Native Stack)  
-- **React Native Paper** (UI, theming e Snackbar)  
-- **@react-native-community/datetimepicker**  
-- **@react-native-picker/picker**  
-- **react-native-sqlite-storage**  
-- **Firebase Auth**  
-- **SheetJS (`xlsx`)**, **react-native-fs**, **react-native-mail**  
+1. Login (offline-friendly).
+2. Lista de avaliações (com filtros por data / produtor / ticket).
+3. Criar nova avaliação (wizard de múltiplos passos).
+4. Revisar em `Preview` e escolher: salvar, enviar WhatsApp, enviar e-mail.
+5. Exportar lote de avaliações visíveis em XLSX e anexar por e-mail.
 
 ---
 
-## Pré-requisitos
+## 🛠️ Tecnologias & Dependências
 
-- **Node.js** ≥ 16  
-- **Yarn** ou **npm**  
-- **JDK 17+**  
-- **Android Studio** + SDK Platform 35  
-- **Variáveis**:
-  ```bash
-  export JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
-  export ANDROID_HOME=$HOME/Android/Sdk
-  export PATH=$JAVA_HOME/bin:$ANDROID_HOME/emulator:$ANDROID_HOME/tools/bin:$ANDROID_HOME/platform-tools:$PATH
-  ```
+- **Linguagem:** TypeScript  
+- **Framework:** React Native (CLI)  
+- **Navegação:** React Navigation (Native Stack)  
+- **UI:** React Native Paper (Theming)  
+- **Banco local:** react-native-sqlite-storage (SQLite) — utilizado internamente pelo app  
+- **Date picker:** @react-native-community/datetimepicker  
+- **Select:** @react-native-picker/picker  
+- **Excel:** xlsx (SheetJS)  
+- **Arquivos:** react-native-fs  
+- **Email:** react-native-mail  
+- **Compartilhamento WhatsApp:** Linking / deep link  
+- **Autenticação:** Firebase Auth  
+- **Context API:** SnackbarProvider para mensagens globais
 
 ---
 
-## Configuração do Ambiente
+## ✅ Boas Práticas adotadas no projeto
 
-```bash
-git clone <repo-url>
-cd AvaliacaoCastelApp
-yarn install        # ou npm install
+- **Offline-first**: dados essenciais persistidos localmente, com sincronização opcional.
+- **Componentização**: inputs, listas e menus isolados para reutilização e manutenção.
+- **Acessibilidade e usabilidade**: auto-focus nos campos, indicadores de progresso e validações claras.
+- **UX escalável**: wizard com validações etapa-a-etapa para reduzir erros na coleta.
+- **Exportabilidade**: template XLSX com cabeçalhos legíveis (com acentuação) e personalizáveis.
+
+---
+
+## 📁 Estrutura Resumida do Projeto
+
+```
+/src
+  /components       # Inputs reutilizáveis, Autocomplete, Menu, SnackProvider...
+  /screens          # Login, ListaAvaliacoes, CadastroAvaliacao, Confirm, Preview, MasterData
+  /services         # dbService (SQLite), export (XLSX), mail/whatsapp helpers
+  /context          # SnackbarProvider, AuthContext
+  /utils            # helper (formatDateBR), labelsEnum, templates (whatsapp/xlsx)
+  /database         # scripts de criação / seed (executados internamente)
 ```
 
 ---
 
-## Execução em Desenvolvimento
+## 📸 Screenshots / Fluxos
 
-```bash
-npx react-native start
-npx react-native run-android
-yarn lint
-yarn test
-```
+> (Substitua pelos assets do projeto)
 
----
+1. Lista com filtros e status (WhatsApp / Email)
 
-## Build de Release (APK / AAB)
+![Tela com listagem de avaliações](img/lista.jpeg)
 
-1. **Gerar keystore**  
-   ```bash
-   keytool -genkeypair -v      -keystore android/app/my-release-key.keystore      -alias my-key-alias      -keyalg RSA -keysize 2048 -validity 10000
-   ```
-2. **Gradle properties** (`android/gradle.properties`):
-   ```
-   MYAPP_UPLOAD_STORE_FILE=my-release-key.keystore
-   MYAPP_UPLOAD_KEY_ALIAS=my-key-alias
-   MYAPP_UPLOAD_STORE_PASSWORD=<store_password>
-   MYAPP_UPLOAD_KEY_PASSWORD=<key_password>
-   ```
-3. **Gerar APK**:
-   ```bash
-   cd android
-   ./gradlew assembleRelease
-   ```
-4. **Gerar AAB** (opcional):
-   ```bash
-   ./gradlew bundleRelease
-   ```
+
+2. Wizard de cadastro em 4 passos
+
+![Etapa 1 do fluxo de cadastro](img/cad_step1.jpeg)
+![Etapa 2 do fluxo de cadastro](img/cad_step2.jpeg)
+![Etapa 3 do fluxo de cadastro](img/cad_step3.jpeg)
+![Etapa 4 do fluxo de cadastro](img/cad_step4.jpeg)
+
+
+3. Preview
+
+![Preview dos dados preenchidos para cadastro](img/preview.jpeg)
+
 
 ---
 
-## Banco de Dados Local (SQLite)
+## 📋 Testes, Qualidade e Entrega
 
-- **Arquivo**: `database.ts`  
-- **Tabelas**:
-  - `produtores`
-  - `variedades`
-  - `locais_armazenagem (nome TEXT PK)`
-  - `avaliacoes` 
-
-- **Carga Inicial**: script Node.js ou SQL executado após primeiro login  
-
----
-
-## Firebase
-
-- **Auth**: E-mail/Senha (`******@****.com`)
+- **Linting & TypeScript** ativados para reduzir regressões.
+- **Mensagens de feedback** consistentes via `SnackbarProvider`.
+- **Entrega ao cliente** costuma incluir:
+  - Pacote de instalação (APK/AAB) para distribuição
+  - README resumido e instruções administrativas
+  - Documentação não técnica sobre uso e fluxo
+  - DDL / esquema de dados e scripts de seed (para importação inicial)
+  - Contato para suporte e treinamento (se contratado)
 
 ---
 
-## Schema
+## 🤝 Como colaborar / solicitar alterações
 
-```sql
-CREATE TABLE produtores  (...);
-CREATE TABLE variedades  (...);
-CREATE TABLE locais_armazenagem (...;
-CREATE TABLE avaliacoes (...);
-```
+Se desejar evoluções (ex.: sincronização automática com backend, relatórios adicionais, integração com ERP), abra uma solicitação descrevendo o requisito e impacto esperado. Trabalhos de evolução são estimados em esforço e custo.
 
 ---
 
-## Componentização & Arquitetura
+## 👤 Contato & Suporte
 
-- **components/**  
-  - `GenericTextInput.tsx`  
-  - `DateInput.tsx`  
-  - `PickerInput.tsx`  
-  - `DefectTable.tsx`  
-  - `WizardLayout.tsx`  
-  - `AppMenu.tsx`, `FilterDialog.tsx`  
+**Dev Lead:** Patrick Cremonese  
+✉️ contato@patrickcremonese.com.br
 
-- **screens/**  
-  - `Login`  
-  - `ListaAvaliacoes`  
-  - `CadastroAvaliacao`  
-  - `ConfirmAvaliacao`  
-  - `PreviewAvaliacao`  
-  - `MasterDataScreen`  
-
-- **services/**  
-  - `dbService` (SQLite)  
-  - `exportService` (XLSX / e-mail / WhatsApp)  
-
-- **context/**  
-  - `SnackbarProvider`  
-
-- **utils/**  
-  - `helper.ts`, `labelsEnum.ts`, tipos TS  
-
----
-
-## Contextos & Providers
-
-- **PaperProvider** (tema)  
-- **SnackbarProvider** (feedback global)  
-
----
-
-## Contato & Suporte
-
-- **Dev Lead:** Patrick Cremonese — contato@patrickcremonese.com.br  
-- **React Native:** https://reactnative.dev  
-- **Firebase Auth:** https://firebase.google.com/docs/auth  
-
-> Obrigado por confiar na nossa solução!  
-> Estamos à disposição para dúvidas ou futuras melhorias.
