@@ -87,16 +87,22 @@ Principais preocupações do projeto: **usabilidade em telas pequenas**, **resil
 > (Substitua pelos assets do projeto)
 
 1. Lista com filtros e status (WhatsApp / Email)
-!(img/lista.jpeg)
+
+![Tela com listagem de avaliações](img/lista.jpeg)
+
 
 2. Wizard de cadastro em 4 passos
-!(img/cad_sted1.jpeg)
-!(img/cad_sted2.jpeg)
-!(img/cad_sted3.jpeg)
-!(img/cad_sted4.jpeg)
+
+![Etapa 1 do fluxo de cadastro](img/cad_step1.jpeg)
+![Etapa 2 do fluxo de cadastro](img/cad_step2.jpeg)
+![Etapa 3 do fluxo de cadastro](img/cad_step3.jpeg)
+![Etapa 4 do fluxo de cadastro](img/cad_step4.jpeg)
+
 
 3. Preview
-!(img/preview.jpeg)
+
+![Preview dos dados preenchidos para cadastro](img/preview.jpeg)
+
 
 ---
 
@@ -124,6 +130,3 @@ Se desejar evoluções (ex.: sincronização automática com backend, relatório
 **Dev Lead:** Patrick Cremonese  
 ✉️ contato@patrickcremonese.com.br
 
----
-
-> Obrigado por confiar na nossa solução — se quiser, eu adapto esse README para uma versão comercial (não técnica) destinada ao cliente final.
